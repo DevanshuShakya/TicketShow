@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>User Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+</head>
+
+<body>
+
+
+    <nav class="navbar navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">{{ user.username}}'s Dashboard</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas"
+                data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar"
+                aria-labelledby="offcanvasDarkNavbarLabel">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">TicketShow</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+                        aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#">Bookings</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">Logout</a>
+                        </li>
+                        <br>
+                        <form class="row g-3" action="{{ url_for('search',user_id=user.user_id,search=search) }}" method="GET">
+                            
+                        <div class="col-auto">
+                            <input class="form-control" type="text" placeholder="Search" name="search" aria-label="Search" required>
+                        </div>
+                        <div class="col-auto">
+    
+                            <button class="btn btn-success" type="Submit">Search</button>
+                        </div>
+    
+                      
+                        </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <br>
+    <br>
+    <br>
+    <br>
+
+
+
+
+
+
+    <div class="container">
+        <h2>Search for '{{ genre_chose }}'</h2>
+        <br>
+        <br>
+        <br>
+
+        <div class="container ">
+            {% if dict=={} %}
+            &nbsp;&nbsp;&nbsp;No shows are available
+            {% else %}
+
+            {% for venue,shows in dict.items() %}
+
+            <nav id="navbar-example2" class="navbar bg-body-secondary  px-3 mb-3">
+                <a style="text-decoration: none;color:black" href="#">
+                    <h4>{{ venue.venue_name}}</h4>
+                    <h6 style="color:grey">{{venue.place}},{{venue.location}}</h6>
+                </a>
+                <br>
+
+
+            </nav>
+
+
+            <div data-bs-spy="scroll" data-bs-target="#navbar-example2" data-bs-root-margin="0px 0px -40%"
+                data-bs-smooth-scroll="true" class="scrollspy-example bg-body-tertiary p-3 rounded-2" tabindex="0">
+
+                {% if shows==[] %}
+                No Shows here.
+                {% else %}
+
+
+                {% for show in shows %}
+
+                <h3 id="scrollspyHeading1">{{ show.show_name }}</h3>
+                {% for genres in genre_dict[show] %}
+
+                {% for genre in genres %}
+
+                <a href="{{url_for('genre_chose',user_id=user.user_id,genre_chose=genre)}}"
+                    style="text-decoration: none; color:black">
+                    <button type="submit" value="{{ genre }}" class="btn btn-outline-dark"
+                        style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">
+                        {{ genre }}
+                    </button>&nbsp;
+
+
+                </a>
+                {% endfor %}
+                {% endfor %}
+
+                <h5 style="color:grey"></h5>
+                <br>
+                <div class="container">
+
+                    <form action="{{url_for('user_dashboard',user_id=user.user_id)}}" method="POST">
+                        <div class="row">
+                            <div class="col-1">
+                                <p style="color:grey"><strong>RATING
+                                    </strong><br>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#eed202"
+                                        class="bi bi-star-fill" viewBox="0 0 16 16">
+                                        <path
+                                            d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                    </svg>
+                                    <span style="color:black">{{ show.rating }}/5</span>
+
+                                </p>
+                            </div>
+                            <div class="col-2">
+                                <p style="color:grey"><strong>TIMING
+                                    </strong><br>
+
+                                    <span style="color:black">{{ show.appt1 }} - {{show.appt2}}</span>
+
+                                </p>
+                            </div>
+                            <div class="col-4"></div>
+                            <div class="col-2">
+                                <p style="color:grey"><strong>SEATS
+
+                                    </strong><br>
+                                    <input type="number" name='seats' min="1"
+                                        max="{{venue.capacity - seat_dict[show] }}"
+                                        placeholder="Available: {{ venue.capacity - seat_dict[show] }}"
+                                        class="form-control" id="inputEmail3" required>
+
+
+                                </p>
+                            </div>
+
+
+                            <div class="col-1">
+                                <p style="color:grey"><strong>PRICE
+
+                                    </strong><br>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                        class="bi bi-currency-rupee" viewBox="0 0 16 16">
+                                        <path
+                                            d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4v1.06Z" />
+                                    </svg>
+
+                                    <span style="color:black">{{ show.price }} </span>
+
+                                </p>
+                            </div>
+                            <div class="col-1">
+                                {% if venue.capacity ==
+                                seat_dict[show]
+                                %}
+
+                                <button type="submit" name="details" value="{{venue.venue_id}}|{{show.show_id}}"
+                                    class="btn btn-danger btn-lg" disabled>Housefull</button>
+
+
+                                {% else %}
+
+                                <button type="submit" name="details" value="{{venue.venue_id}}|{{show.show_id}}"
+                                    class="btn btn-success btn-lg">Book</button>
+
+                                {% endif %}
+                            </div>
+
+
+                        </div>
+                    </form>
+                </div>
+                <br>
+                <hr>
+
+
+                {% endfor %}
+                {% endif %}
+
+            </div>
+            <br>
+            <br>
+            <br>
+            {% endfor %}
+            {% endif %}
+
+
+
+        </div>
+
+
+    </div>
+
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
